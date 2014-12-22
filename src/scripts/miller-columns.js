@@ -1,6 +1,8 @@
 // miller-columns.js
-
-var BreadCrumbs = require("./breadcrumbs");
+/* jshint strict:false */
+/* global m */
+var BreadCrumbs = require('./breadcrumbs');
+var hasChild    = require('./hasChild');
 
 var MillerColumns = {};
 
@@ -18,14 +20,14 @@ MillerColumns.columns = function() {
   if (!stack.length) {
     stack.push(tree[0]);
 
-    MillerColumns.stack(stack)
+    MillerColumns.stack(stack);
   }
 
   var columns = stack.map(function(column) {
     var children = column.children;
 
-    return m("div.column", [
-      m("ol.column-list", [
+    return m('div.column', [
+      m('ol.column-list', [
         children.map(function(child) {
           var options = {};
 
@@ -42,7 +44,15 @@ MillerColumns.columns = function() {
                   }
                 }
                 else {
-                  // Todo: fix an issue columns need to be popped before pushing this column
+                  // while the stack's top element doesn't contain the child
+                    // pop the stack
+
+                  while (!hasChild(stack, child)) {
+                    stack.pop();
+                    path.pop();
+
+                    infiniteLoopPreventer++;
+                  }
 
                   stack.push(child);
                   path.push(child.name);
@@ -54,13 +64,13 @@ MillerColumns.columns = function() {
             };
           }
 
-          return m("li", options, [
-            child.url ? m("a", {
+          return m('li', options, [
+            child.url ? m('a', {
               config: m.route,
               href: child.url
-            },child.name) : m("span", [
-              m("span", child.name),
-              m("span", " > ")
+            },child.name) : m('span', [
+              m('span', child.name),
+              m('span', ' > ')
             ])
           ])
         })
@@ -68,7 +78,7 @@ MillerColumns.columns = function() {
     ])
   });
 
-  return m("div.columns", {
+  return m('div.columns', {
     config: function(el) {
       el.scrollLeft = el.scrollWidth;
     }}, [columns]
@@ -78,7 +88,7 @@ MillerColumns.columns = function() {
 MillerColumns.view = function() {
   var path = MillerColumns.path();
 
-  return m("div.miller-columns", [
+  return m('div.miller-columns', [
     MillerColumns.columns(),
     BreadCrumbs.view({
       list: path
