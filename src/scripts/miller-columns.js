@@ -50,8 +50,6 @@ MillerColumns.columns = function() {
                   while (!hasChild(stack, child)) {
                     stack.pop();
                     path.pop();
-
-                    infiniteLoopPreventer++;
                   }
 
                   stack.push(child);
